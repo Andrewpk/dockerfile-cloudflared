@@ -6,15 +6,15 @@ ARG GOARM
 
 RUN apk update; \
     apk add git gcc build-base; \
-    go get -v github.com/cloudflare/cloudflared/cmd/cloudflared
+    go get -v github.com/kitsook/cloudflared
 
-WORKDIR /go/src/github.com/cloudflare/cloudflared/cmd/cloudflared
+WORKDIR /go/src/github.com/kitsook/cloudflared
 
 RUN GOARCH=${GOARCH} GOARM=${GOARM} go build ./
 
 FROM multiarch/alpine:${ARCH}-edge
 
-LABEL maintainer="Jan Collijs"
+LABEL maintainer="Jan Collijs, Andrew Kehrig"
 
 ENV DNS1 1.1.1.1
 ENV UPSTREAM1 https://${DNS1}/.well-known/dns-query
@@ -28,7 +28,7 @@ RUN echo 'http://dl-cdn.alpinelinux.org/alpine/edge/main' > /etc/apk/repositorie
     apk add --no-cache ca-certificates bind-tools libcap; \
     rm -rf /var/cache/apk/*;
 
-COPY --from=gobuild /go/src/github.com/cloudflare/cloudflared/cmd/cloudflared/cloudflared /usr/local/bin/cloudflared
+COPY --from=gobuild /go/src/github.com/kitsook/cloudflared/cloudflared /usr/local/bin/cloudflared
 
 RUN setcap CAP_NET_BIND_SERVICE+eip /usr/local/bin/cloudflared
 
